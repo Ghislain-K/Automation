@@ -1,1 +1,51 @@
+#!/bin/bash
 
+# Check if the script is run with root privileges
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run this script as root or using sudo."
+  exit 1
+fi
+
+# Update package repositories
+apt-get update
+
+# Install Ansible and its dependencies (for Ubuntu/Debian)
+apt-get install -y software-properties-common
+apt-add-repository --yes --update ppa:ansible/ansible
+apt-get install -y ansible
+
+# If using CentOS/RHEL, use the following commands instead:
+# yum install -y epel-release
+# yum install -y ansible
+
+# Check Ansible version
+ansible --version
+
+echo "Ansible setup completed."
+
+
+
+
+
+---------------------------END OF BASH SCRIPT------------------------------------------------------------
+
+
+
+
+Save this script in a file, e.g., setup_ansible.sh, and make it executable using the following command:
+
+
+    chmod +x setup_ansible.sh
+Then, you can run the script with root privileges to automate the installation of Ansible:
+
+
+    sudo ./setup_ansible.sh
+
+The script first checks if it is run with root privileges (necessary for package installation). 
+Then, it updates the package repositories, installs Ansible and its dependencies, and finally, displays the installed Ansible version.
+
+Please note that the script assumes you are using Ubuntu/Debian-based Linux distributions. 
+If you are using CentOS/RHEL, you can follow the commented lines in the script to install Ansible using yum instead of apt-get.
+
+Before running the script, ensure you understand the implications of installing software on your server and have the necessary permissions to perform the installation. 
+Also, consider customizing the script to meet your specific requirements or to add any additional configurations or packages that might be needed for your Ansible setup.
