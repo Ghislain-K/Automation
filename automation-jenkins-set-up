@@ -1,1 +1,92 @@
+Once the EC2 instance is up and running, use a Bash script to install Jenkins and its dependencies
+
+
+
+#!/bin/bash
+
+# Check if the script is run with root privileges
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run this script as root or using sudo."
+  exit 1
+fi
+
+# Update package repositories
+apt-get update
+
+# Install Java (required for Jenkins)
+apt-get install -y default-jre
+
+# Install Jenkins
+wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | apt-key add -
+echo "deb https://pkg.jenkins.io/debian-stable binary/" >> /etc/apt/sources.list
+apt-get update
+apt-get install -y jenkins
+
+# Start Jenkins service
+systemctl start jenkins
+
+# Enable Jenkins service to start on boot
+systemctl enable jenkins
+
+# Check Jenkins status
+systemctl status jenkins
+
+echo "Jenkins setup completed."
+
+
+
+
+------------------------------------------END OF BASH SCRIPT----------------------------------------------------
+
+
+
+
+
+EXAMPLE OF A YAML SNIPPET TO DEFINE A SIMPLE JENKINS JOB
+
+
+
+
+1. Configure Jenkins using JCasC:
+Create a YAML file (jenkins.yaml) that defines your Jenkins configurations, including jobs, plugins, and other settings.
+Refer to the JCasC documentation for details on how to write the YAML file.
+
+
+
+
+yaml script:
+
+
+jenkins:
+  jobs:
+    - script: >
+        pipeline {
+          agent any
+          stages {
+            stage('Hello') {
+              steps {
+                echo 'Hello, Jenkins!'
+              }
+            }
+          }
+        }
+
+
+
+
+------------------------------------------END OF SCRIPT--------------------------------------------------
+
+
+
+
+
+
+
+1. Apply Jenkins Configuration:
+Use the "Reload Configuration from Disk" option in the "Jenkins Configuration as Code" section to apply the changes defined in your jenkins.yaml file.
+
+With this setup, Jenkins will be installed and configured with your defined jobs and plugins automatically whenever you launch a new EC2 instance. 
+You can further customize the Jenkins configuration YAML to suit your specific needs.
+
+Remember to ensure that you understand the security implications of running Jenkins on AWS and take necessary measures to secure your Jenkins server (e.g., setting up authentication, using HTTPS, etc.).
 
