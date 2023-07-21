@@ -1,1 +1,26 @@
+#!/bin/bash
+
+# Variables
+ELB_NAME="your-elb-name"
+TARGET_GROUP_ARN="your-target-group-arn"
+
+# Step 1: Register new instances to the target group
+INSTANCE_IDS=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --query "Reservations[].Instances[].InstanceId" --output text)
+
+for INSTANCE_ID in $INSTANCE_IDS; do
+    aws elbv2 register-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=$INSTANCE_ID
+done
+
+# Step 2: Deregister old instances from the target group
+OLD_INSTANCE_IDS=$(aws elbv2 describe-target-health --target-group-arn $TARGET_GROUP_ARN --query "TargetHealthDescriptions[?TargetHealth.State=='unused'].Target.Id" --output text)
+
+for OLD_INSTANCE_ID in $OLD_INSTANCE_IDS; do
+    aws elbv2 deregister-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=$OLD_INSTANCE_ID
+done
+
+# Step 3: Describe the target group and update the load balancer
+aws elbv2 describe-target-health --target-group-arn $TARGET_GROUP_ARN
+
+# Step 4: Check the load balancer status
+aws elbv2 describe-load-balancers --names $ELB_NAME
 
